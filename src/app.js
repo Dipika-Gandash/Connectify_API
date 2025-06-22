@@ -3,6 +3,7 @@ const connectDB = require("./config/database");
 require("dotenv").config();
 const User = require("./modals/userSchema");
 const app = express();
+const bcrypt = require('bcrypt');
 
 app.use(express.json());
 
@@ -10,11 +11,13 @@ app.post("/signup", async (req, res) => {
   const { firstName, lastName, email, password, age, gender, bio, skills } =
     req.body;
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = new User({
       firstName,
       lastName,
       email,
-      password,
+      password : hashedPassword,
       age,
       gender,
       bio,
@@ -27,6 +30,33 @@ app.post("/signup", async (req, res) => {
     res.status(500).send("Error creating user : " + error.message);
   }
 });
+
+app.post("/login", async(req, res) => {
+  const {email, password} = req.body;
+
+  try{
+   const user = await User.findOne({email : email});
+   if(!user){
+   throw new Error("Invalid credentials!");
+   }
+
+   const isPasswordValid = await bcrypt.compare(password, user.password);
+   if(!isPasswordValid){
+    return res.status(401).send("Incorrect Password");
+   }
+
+   const {firstName, lastName, bio} = user;
+   res.json({
+    message : "Login Successful!",
+    firstName, 
+    lastName, 
+    bio
+   })
+
+  } catch(error){
+    return res.status(400).send(error.message);
+  }
+})
 
 app.get("/user", async (req, res) => {
   const email = req.query.email;
