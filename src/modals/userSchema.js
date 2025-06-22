@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -20,16 +21,28 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
     unique: true,
-    match: [/\S+@\S+\.\S+/, "Please use a valid email address"],
+    validate: {
+      validator: validator.isEmail,
+      message: "Please provide a valid email address.",
+    },
   },
   password: {
     type: String,
     required: [true, "Password is required"],
     minlength: [8, "Password must be at least 8 chracters long"],
-    match: [
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
-      "Password must have at least one uppercase, one lowercase, one number, and one special character",
-    ],
+    validate: {
+      validator(value) {
+        return validator.isStrongPassword(value, {
+          minLength: 8,
+          minLowercase: 1,
+          minUppercase: 1,
+          minSymbols: 1,
+          minNumbers: 1,
+        });
+      },
+      message:
+        "Password is not strong enough. It should have at least 8 characters, one uppercase, one lowercase, one number, and one special character.",
+    },
   },
   age: {
     type: Number,
@@ -49,8 +62,42 @@ const userSchema = new mongoose.Schema({
   bio: {
     type: String,
     trim: true,
-    maxlength: [300, 'Bio cannot be more than 300 characters']
-  }
+    default: "Hey there! I'm using this app.",
+    maxlength: [300, "Bio cannot be more than 300 characters"],
+  },
+  photoUrl: {
+    type: String,
+    default:
+      "https://www.macfcu.org/wp-content/uploads/2024/02/Windows_10_Default_Profile_Picture.svg.png",
+    validator(value) {
+      if (!validator.isURL(value)) {
+        throw new Error("Invalid URL");
+      }
+    },
+  },
+  skills: {
+    type: [String],
+    validate: [
+      {
+        validator(value) {
+          return value.length <= 25;
+        },
+        message: "You can only have a maximum of 25 skills",
+      },
+      {
+        validator(skillArray) {
+          return skillArray.every((skill) => skill.length <= 30);
+        },
+        message: "Each skill should be at most 30 characters long.",
+      },
+      {
+        validator(skillArray) {
+          return skillArray.every((skill) => /^[A-Za-z0-9\s]+$/.test(skill));
+        },
+        message: "Skills can only contain alphanumeric characters and spaces.",
+      },
+    ],
+  },
 });
 
 const User = mongoose.model("user", userSchema);
