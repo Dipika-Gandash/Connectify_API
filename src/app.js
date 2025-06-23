@@ -93,7 +93,7 @@ app.patch("/updateProfile/:id", async (req, res) => {
   const userId = req.params.id;
   const data = req.body;
 
-  const ALLOWED_UPDATES = ["firstName", "lastName", "password", "photoUrl", "bio", "skills"];
+  const ALLOWED_UPDATES = ["firstName", "lastName", "photoUrl", "bio", "skills"];
  
 
   try {
