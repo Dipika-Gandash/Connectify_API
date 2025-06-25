@@ -4,8 +4,10 @@ require("dotenv").config();
 const User = require("./modals/userSchema");
 const app = express();
 const bcrypt = require('bcrypt');
+const cookieParser = require("cookie-parser")
 
 app.use(express.json());
+app.use(cookieParser())
 
 app.post("/signup", async (req, res) => {
   const { firstName, lastName, email, password, age, gender, bio, skills } =
@@ -45,6 +47,8 @@ app.post("/login", async(req, res) => {
     return res.status(401).send("Incorrect Password");
    }
 
+   const token = "abc123xyz";
+    res.cookie("token", token);
    const {firstName, lastName, bio} = user;
    res.json({
     message : "Login Successful!",
@@ -55,6 +59,25 @@ app.post("/login", async(req, res) => {
 
   } catch(error){
     return res.status(400).send(error.message);
+  }
+})
+
+app.get("/profile", async (req, res) => {
+  const {token} = req.cookies;
+  console.log(token);
+  if(!token){
+    return res.status(401).send("Unauthorized! Please login first.")
+  }
+
+  try{
+    if(token !== "abc123xyz"){
+      throw new Error("Invalid token!")
+    }
+
+    res.send("Welcome to your profile page !");
+
+  } catch(error){
+    return res.status(500).send("Error fetching profile :" + error.message);
   }
 })
 
@@ -119,6 +142,8 @@ app.patch("/updateProfile/:id", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
+
+
 
 
 
