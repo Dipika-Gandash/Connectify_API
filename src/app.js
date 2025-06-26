@@ -4,7 +4,8 @@ require("dotenv").config();
 const User = require("./modals/userSchema");
 const app = express();
 const bcrypt = require('bcrypt');
-const cookieParser = require("cookie-parser")
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 app.use(express.json());
 app.use(cookieParser())
@@ -47,7 +48,7 @@ app.post("/login", async(req, res) => {
     return res.status(401).send("Incorrect Password");
    }
 
-   const token = "abc123xyz";
+   const token = await jwt.sign({_id : user._id, email : user.email}, process.env.JWT_SECRET_KEY, {expiresIn : "1h"});
     res.cookie("token", token);
    const {firstName, lastName, bio} = user;
    res.json({
@@ -64,17 +65,25 @@ app.post("/login", async(req, res) => {
 
 app.get("/profile", async (req, res) => {
   const {token} = req.cookies;
-  console.log(token);
   if(!token){
     return res.status(401).send("Unauthorized! Please login first.")
   }
 
   try{
-    if(token !== "abc123xyz"){
-      throw new Error("Invalid token!")
-    }
+    const decodedMessage = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+    console.log(decodedMessage);
 
-    res.send("Welcome to your profile page !");
+  const user = await User.findById(decodedMessage._id);
+  if(!user){
+    return res.status(404).send("User not found");
+  }
+  
+  res.json({
+    firstName : user.firstName, 
+    lastName : user.lastName,
+    email : user.email,
+    bio : user.bio
+  })
 
   } catch(error){
     return res.status(500).send("Error fetching profile :" + error.message);
