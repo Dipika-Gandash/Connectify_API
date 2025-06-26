@@ -79,6 +79,15 @@ app.get("/profile", userAuth,  async (req, res) => {
   }
 });
 
+app.get("/logout", userAuth, (req, res) => {
+  try{
+    res.clearCookie("token");
+    res.json({message : "Logged out successfully!"});
+  } catch(error){
+    return res.status(500).send("Error logging out : " + error.message);
+  }
+})
+
 
 
 
