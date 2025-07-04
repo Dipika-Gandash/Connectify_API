@@ -6,7 +6,7 @@ const { User } = require("../modals/userSchema")
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 
-profileRouter.get("/profile", userAuth, async (req, res) => {
+profileRouter.get("/", userAuth, async (req, res) => {
   try {
     const user = req.user;
     res.json({
@@ -20,7 +20,7 @@ profileRouter.get("/profile", userAuth, async (req, res) => {
   }
 });
 
-profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
+profileRouter.patch("/edit", userAuth, async (req, res) => {
   try {
     if (!validateEditProfileData(req)) {
       throw new Error("Invalid update data");
@@ -42,7 +42,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   }
 });
 
-profileRouter.patch("/profile/update/password", userAuth, async (req, res) => {
+profileRouter.patch("/update/password", userAuth, async (req, res) => {
   try{
     const { oldPassword, newPassword }= req.body;
     const loggedInUser = req.user;
