@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
+const connectionRouter = require("./routes/connections");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -15,14 +16,15 @@ app.use(cookieParser());
 app.use("/user", authRouter);
 app.use("/profile", profileRouter);
 app.use("/request", requestRouter);
+app.use("/network", connectionRouter)
 
-
+const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(() => {
     console.log("Database connected successfully");
-    app.listen(3000, () => {
-      console.log("Server is running on http://localhost:3000");
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   })
   .catch((error) => {
