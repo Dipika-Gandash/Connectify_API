@@ -58,8 +58,8 @@ Create a .env file in the root directory:
 
 #▶️ Getting Started
 # 1. Clone the repository
-git clone https://github.com/your-username/connectify-api.git
-cd connectify-api
+git clone https://github.com/Dipika-Gandash/Connectify_API
+cd Connectify_API
 
 # 2. Install dependencies
 npm install
