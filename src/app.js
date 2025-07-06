@@ -18,7 +18,7 @@ app.use("/profile", profileRouter);
 app.use("/request", requestRouter);
 app.use("/network", connectionRouter)
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 connectDB()
   .then(() => {
