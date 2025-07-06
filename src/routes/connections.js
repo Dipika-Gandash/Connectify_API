@@ -5,7 +5,33 @@ const { userAuth } = require('../middlewares/auth');
 const ConnectionRequest = require('../modals/connectionReq');
 const User = require('../modals/userSchema');
 
-const USER_DATA = ['firstName', 'lastName', 'photoUrl', 'bio'];
+const USER_DATA = ['firstName', 'lastName', 'bio'];
+
+connectionRouter.get('/user/pendingReq', userAuth, async (req, res) => {
+     const loggedInUser = req.user;
+     try{
+          const connectionRequests = await ConnectionRequest.find({
+               toUserId: loggedInUser._id,
+               status: 'pending'
+          }).populate('fromUserId', USER_DATA);
+
+          if(connectionRequests.length === 0){
+               return res.send('No pending connection requests')
+          }
+
+          const data = connectionRequests.map((row) => {
+               return row.fromUserId;
+          })
+
+          res.status(200).json({
+               message: 'Pending connection requests retrieved successfully',
+               data: data
+          })
+
+     }catch(error){
+          return res.status(500).send(error.message);
+     }
+})
 
 connectionRouter.get('/user/connections', userAuth, async (req, res) => {
      try{
@@ -40,6 +66,8 @@ connectionRouter.get('/user/connections', userAuth, async (req, res) => {
           return res.status(500).send(error.message);
      }
 })
+
+
 
 
 module.exports = connectionRouter;
