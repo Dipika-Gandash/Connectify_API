@@ -1,9 +1,8 @@
-const express = require('express');
+const express = require("express");
 const authRouter = express.Router();
-const bcrypt = require('bcrypt');
-const User = require('../modals/userSchema');
-const { userAuth } = require('../middlewares/auth');
-
+const bcrypt = require("bcrypt");
+const User = require("../modals/userSchema");
+const { userAuth } = require("../middlewares/auth");
 
 authRouter.post("/signup", async (req, res) => {
   const { firstName, lastName, email, password, age, gender, bio, skills } =
@@ -20,6 +19,12 @@ authRouter.post("/signup", async (req, res) => {
       gender,
       bio,
       skills,
+    });
+    const token = user.getJWT();
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
 
     await user.save();
@@ -44,7 +49,11 @@ authRouter.post("/login", async (req, res) => {
     }
 
     const token = user.getJWT();
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
     const { firstName, lastName, bio } = user;
     res.json({
       message: "Login Successful!",
@@ -58,12 +67,12 @@ authRouter.post("/login", async (req, res) => {
 });
 
 authRouter.post("/logout", userAuth, (req, res) => {
-  try{
+  try {
     res.clearCookie("token");
-    res.json({message : "Logged out successfully!"});
-  } catch(error){
+    res.json({ message: "Logged out successfully!" });
+  } catch (error) {
     return res.status(500).send("Error logging out : " + error.message);
   }
-})
+});
 
 module.exports = authRouter;
