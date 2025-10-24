@@ -4,12 +4,18 @@ require("dotenv").config();
 const app = express();
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const cors = require("cors")
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const connectionRouter = require("./routes/connections");
 
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
+  credentials: true
+}))
 app.use(express.json());
 app.use(cookieParser());
 
