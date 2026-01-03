@@ -5,7 +5,7 @@ const User = require("../modals/userSchema");
 const { userAuth } = require("../middlewares/auth");
 
 authRouter.post("/signup", async (req, res) => {
-  const { firstName, lastName, email, password, age, gender, bio, skills } =
+  const { firstName, lastName, age, email, password } =
     req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -14,11 +14,8 @@ authRouter.post("/signup", async (req, res) => {
       firstName,
       lastName,
       email,
-      password: hashedPassword,
       age,
-      gender,
-      bio,
-      skills,
+      password: hashedPassword
     });
     const token = user.getJWT();
     res.cookie("token", token, {
@@ -28,7 +25,7 @@ authRouter.post("/signup", async (req, res) => {
     });
 
     await user.save();
-    res.send("User created successfuly");
+    res.send("Account created successfully");
   } catch (error) {
     res.status(500).send("Error creating user : " + error.message);
   }

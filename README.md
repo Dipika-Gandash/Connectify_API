@@ -1,4 +1,4 @@
-🔗 Connectify API
+## 🔗 Connectify API
 A mini social networking backend built with Node.js, Express, MongoDB, and JWT Auth.
 Features include user authentication, sending/accepting connection requests, managing profiles, and a personalized user feed with pagination.
 
